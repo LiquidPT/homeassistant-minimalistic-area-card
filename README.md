@@ -44,6 +44,14 @@ For `tap_action` options, see https://www.home-assistant.io/dashboards/actions/.
     - entity: light.living_room_lamp
     - entity: sensor.hallway_humidity
     - entity: sensor.hallway_temperature
+    - entity: binary_sensor.main_door_opening
+      icon: mdi:door
+      state_color: false
+      state:
+        - value: 'on'
+          icon: mdi:door-open
+        - value: 'off'
+          icon: mdi:door-closed
 ```
 
 [commits-shield]: https://img.shields.io/github/commit-activity/y/junalmeida/homeassistant-minimalistic-area-card.svg?style=for-the-badge

@@ -46,7 +46,13 @@ type ExtendedEntityConfig = EntitiesCardEntityConfig & {
     suffix?: string;
     show_state?: boolean;
     attribute?: string;
+    state?: EntityStateConfig[];
 };
+
+type EntityStateConfig = {
+    value: string;
+    icon?: string;
+}
 
 const createEntityNotFoundWarning = (
     hass,
@@ -202,13 +208,13 @@ class MinimalisticAreaCard extends LitElement {
                 : this.config.darken_image === undefined ? false : this.config.darken_image,
         })}>
                 <hui-image
-                    .hass=${this.hass} 
-                    .cameraImage=${this.config.camera_image} 
+                    .hass=${this.hass}
+                    .cameraImage=${this.config.camera_image}
                     .entity=${this.config.camera_image}
-                    .cameraView=${this.config.camera_view || "auto"} 
+                    .cameraView=${this.config.camera_view || "auto"}
                     .width="100%"></hui-image>
             </div>` : null}
-        
+
             <div class="box">
                 <div class="card-header">${this.config.title}</div>
                 <div class="sensors">
@@ -231,10 +237,20 @@ class MinimalisticAreaCard extends LitElement {
         const stateObj = this.hass.states[entityConf.entity];
         const entity = this.hass.entities[entityConf.entity] as EntityRegistryDisplayEntry;
 
+        // added for backward compatibility: hide state by default for binary_sensors
+        // eslint-disable-next-line  @typescript-eslint/no-unused-vars
+        const [domain, _] = stateObj.entity_id.split(".");
+        let show_state = true
+        if (entityConf.show_state === undefined) {
+            show_state = domain === "binary_sensor" ? false : true
+        } else {
+            show_state = !!entityConf.show_state
+        }
+
         entityConf = {
             tap_action: { action: dialog ? "more-info" : "toggle" },
             hold_action: { action: "more-info" },
-            show_state: entityConf.show_state === undefined ? true : !!entityConf.show_state,
+            show_state: show_state,
             ...entityConf,
         };
 
@@ -255,6 +271,15 @@ class MinimalisticAreaCard extends LitElement {
         const active = stateObj && stateObj.state && STATES_OFF.indexOf(stateObj.state.toString().toLowerCase()) === -1;
         const title = `${stateObj.attributes?.friendly_name || stateObj.entity_id}: ${computeStateDisplay(this.hass?.localize, stateObj, this.hass?.locale)}`;
 
+        let icon = entityConf.icon
+        if (entityConf.state !== undefined && entityConf.state.length > 0) {
+            const currentState = this.computeStateValue(stateObj, entity)
+            const stateConfig = entityConf.state.filter((i) => i.value == currentState)[0]
+            if (stateConfig && stateConfig.icon !== undefined) {
+                icon = stateConfig.icon
+            }
+        }
+
         return html`
     <div class="wrapper">
         <ha-icon-button @action=${this._handleEntityAction} .actionHandler=${actionHandler({
@@ -262,7 +287,7 @@ class MinimalisticAreaCard extends LitElement {
                 hasAction(entityConf.hold_action), hasDoubleClick: hasAction(entityConf.double_tap_action),
         })}
             .config=${entityConf} class=${classMap({ "state-on": active, })}>
-            <state-badge .hass=${this.hass} .stateObj=${stateObj} .title=${title} .overrideIcon=${entityConf.icon}
+            <state-badge .hass=${this.hass} .stateObj=${stateObj} .title=${title} .overrideIcon=${icon}
                 .stateColor=${entityConf.state_color !== undefined ? entityConf.state_color : this.config.state_color
                 !== undefined ? this.config.state_color : true} class=${classMap({
                     "shadow": this.config.shadow === undefined
@@ -304,7 +329,7 @@ class MinimalisticAreaCard extends LitElement {
                     : ""}`;
             }
         }
-        else if (domain !== "binary_sensor" && stateObj.state !== "unavailable" && stateObj.state !== "idle") {
+        else if (stateObj.state !== "unavailable" && stateObj.state !== "idle") {
             return stateObj.state;
         }
         else {
@@ -530,7 +555,7 @@ class MinimalisticAreaCard extends LitElement {
           display: block;
           height: 100%;
           width: 100%;
-          
+
           object-fit: cover;
 
           position: absolute;
@@ -547,17 +572,17 @@ class MinimalisticAreaCard extends LitElement {
           height: 100%;
           width: 100%;
           overflow: hidden;
-         
-          position: absolute; 
-          left: 0; top: 0; 
-          
+
+          position: absolute;
+          left: 0; top: 0;
+
           z-index: -1;
           pointer-events: none;
           border-radius: var(--ha-card-border-radius, 12px);
       }
 
       div.camera hui-image {
-          position: relative; 
+          position: relative;
           top: 50%;
           transform: translateY(-50%);
       }
@@ -615,7 +640,7 @@ class MinimalisticAreaCard extends LitElement {
             zoom: 0.67;
             vertical-align: middle;
       }
-    
+
       .box .wrapper {
           display: inline-block;
           vertical-align: middle;
