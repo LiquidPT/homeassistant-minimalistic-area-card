@@ -3,7 +3,9 @@ import { HassEntity } from "home-assistant-js-websocket";
 import { HomeAssistantArea } from "./types";
 
 const arrayFilter = (
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     array: any[],
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     conditions: Array<(value: any) => boolean>,
     maxSize: number
 ) => {
@@ -11,6 +13,7 @@ const arrayFilter = (
         maxSize = array.length;
     }
 
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     const filteredArray: any[] = [];
 
     for (let i = 0; i < array.length && filteredArray.length < maxSize; i++) {

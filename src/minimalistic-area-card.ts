@@ -115,6 +115,7 @@ class MinimalisticAreaCard extends LitElement {
         entities.forEach((item) => {
 
             const entity = this.parseEntity(item);
+            // eslint-disable-next-line  @typescript-eslint/no-unused-vars
             const [domain, _] = entity.entity.split('.');
             if (SENSORS.indexOf(domain) !== -1 || entity.attribute) {
                 this._entitiesSensor.push(entity);
@@ -289,6 +290,7 @@ class MinimalisticAreaCard extends LitElement {
     }
 
     computeStateValue(stateObj: HassEntity, entity?: EntityRegistryDisplayEntry) {
+        // eslint-disable-next-line  @typescript-eslint/no-unused-vars
         const [domain, _] = stateObj.entity_id.split(".");
         if (this.isNumericState(stateObj)) {
             const value = Number(stateObj.state);
