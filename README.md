@@ -8,7 +8,7 @@ A minimalistic area card to have a control panel of your house on your dashboard
 
 ![Sample preview](docs/sample.png)
 
-Please consider sponsoring if you feel that this project is somehow useful to you.  
+Please consider sponsoring if you feel that this project is somehow useful to you.
 [![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
 ## Options
@@ -44,14 +44,25 @@ For `tap_action` options, see https://www.home-assistant.io/dashboards/actions/.
     - entity: light.living_room_lamp
     - entity: sensor.hallway_humidity
     - entity: sensor.hallway_temperature
+      color: blue
     - entity: binary_sensor.main_door_opening
       icon: mdi:door
-      state_color: false
+      state_color: true
       state:
         - value: 'on'
+          color: green
           icon: mdi:door-open
         - value: 'off'
+          color: red
           icon: mdi:door-closed
+```
+
+State based settings:
+```yaml
+states: # array of values
+  - value: value #state value to match
+    icon: mdi:my-icon" #icon used when state match
+    color: color # color used when state match
 ```
 
 [commits-shield]: https://img.shields.io/github/commit-activity/y/junalmeida/homeassistant-minimalistic-area-card.svg?style=for-the-badge
