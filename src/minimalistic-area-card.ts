@@ -46,12 +46,14 @@ type ExtendedEntityConfig = EntitiesCardEntityConfig & {
     suffix?: string;
     show_state?: boolean;
     attribute?: string;
+    color?: string;
     state?: EntityStateConfig[];
 };
 
 type EntityStateConfig = {
     value: string;
     icon?: string;
+    color?: string;
 }
 
 const createEntityNotFoundWarning = (
@@ -272,11 +274,18 @@ class MinimalisticAreaCard extends LitElement {
         const title = `${stateObj.attributes?.friendly_name || stateObj.entity_id}: ${computeStateDisplay(this.hass?.localize, stateObj, this.hass?.locale)}`;
 
         let icon = entityConf.icon
+        let color = entityConf.color
+
         if (entityConf.state !== undefined && entityConf.state.length > 0) {
             const currentState = this.computeStateValue(stateObj, entity)
             const stateConfig = entityConf.state.filter((i) => i.value == currentState)[0]
-            if (stateConfig && stateConfig.icon !== undefined) {
-                icon = stateConfig.icon
+            if (stateConfig) {
+                if (stateConfig.icon !== undefined) {
+                    icon = stateConfig.icon
+                }
+                if (stateConfig.color !== undefined) {
+                    color = stateConfig.color
+                }
             }
         }
 
@@ -289,7 +298,7 @@ class MinimalisticAreaCard extends LitElement {
             .config=${entityConf} class=${classMap({ "state-on": active, })}>
             <state-badge .hass=${this.hass} .stateObj=${stateObj} .title=${title} .overrideIcon=${icon}
                 .stateColor=${entityConf.state_color !== undefined ? entityConf.state_color : this.config.state_color
-                !== undefined ? this.config.state_color : true} class=${classMap({
+                !== undefined ? this.config.state_color : true} .color=${color} class=${classMap({
                     "shadow": this.config.shadow === undefined
                         ? false : this.config.shadow,
                 })}></state-badge>
